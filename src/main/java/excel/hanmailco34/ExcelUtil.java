@@ -70,7 +70,8 @@ public class ExcelUtil<T> {
 	}
 	
 	private void renderCellValue(Cell cell, Object cellValue) {
-		if(cellValue instanceof Number numberValue) {
+		if(cellValue instanceof Number) {
+			Number numberValue = (Number) cellValue;
 			cell.setCellValue(numberValue.doubleValue());
 			return;
 		}

@@ -4,13 +4,13 @@ plugins {
 
 group = 'excel'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
+sourceCompatibility = '8'
 
 repositories {
 	mavenCentral()
 }
 
 dependencies {
-	implementation 'org.apache.poi:poi:4.1.2'
+    implementation 'org.apache.poi:poi:4.1.2'
     implementation 'org.apache.poi:poi-ooxml:4.1.2'
 }
