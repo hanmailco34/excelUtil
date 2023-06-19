@@ -19,4 +19,8 @@ public class ExcelDto {
 	public List<String> getFieldNames() {
 		return fieldNames;
 	}
+	
+	public Map<String, String> getExcelHeaderNames() {
+		return excelHeaderNames;
+	}
 }
