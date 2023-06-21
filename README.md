@@ -51,6 +51,9 @@ excelFile.write(String filpaht);를 넣으면 백단에서 다운로드
 
 엑셀데이터를 LIST 변환하는법
 ------------------------2
+
 ExcelUtil<만든vo> excelFile = new ExcelUtil(파일, 만든vo.class);
+
 ----------------------3
+
 List<만든vo> result = excelFile.convertToList();
