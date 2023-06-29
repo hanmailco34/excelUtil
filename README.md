@@ -67,6 +67,10 @@ ExcelUtil<TestVO> excelFile = new ExcelUtil<>(dataList, TestVO.class, "시트이
 
 // 엑셀 파일 생성 및 다운로드
 excelFile.write("파일경로/파일명.xlsx");
+
+// 스트림으로 엑셀 파일 보내줄 경우
+// response는 HttpServletResponse 객체입니다.
+excelFile.write(response.getOutputStream());
 ```
 
 ### 2. 엑셀에서 리스트로 변환하기
@@ -143,6 +147,10 @@ ExcelUtil<TestDto> excelFile3 = new ExcelUtil(excelList);
 
 // 엑셀 파일 생성 및 다운로드
 excelFile3.write("파일경로/파일명.xlsx");
+
+// 스트림으로 엑셀 파일 보내줄 경우
+// response는 HttpServletResponse 객체입니다.
+excelFile.write(response.getOutputStream());
 ```
 
 위의 예제 코드는 ExcelUtil 라이브러리의 주요 기능을 설명하기 위한 것입니다.
