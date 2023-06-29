@@ -59,8 +59,11 @@ TestVO data2 = new TestVO();
 data2.setUserId("user2");
 dataList.add(data2);
 
-// ExcelUtil 인스턴스 생성
+// 1) ExcelUtil 인스턴스 생성
 ExcelUtil<TestVO> excelFile = new ExcelUtil<>(dataList, TestVO.class);
+
+// 2) ExcelUtil 인스턴스 생성(시트이름)
+ExcelUtil<TestVO> excelFile = new ExcelUtil<>(dataList, TestVO.class, "시트이름");
 
 // 엑셀 파일 생성 및 다운로드
 excelFile.write("파일경로/파일명.xlsx");
@@ -72,8 +75,11 @@ excelFile.write("파일경로/파일명.xlsx");
 // 엑셀 파일 읽어오기
 File excelFile = new File("파일경로/파일명.xlsx");
 
-// ExcelUtil 인스턴스 생성
+// 1) ExcelUtil 인스턴스 생성
 ExcelUtil<TestVO> excelUtil = new ExcelUtil<>(excelFile, TestVO.class);
+
+// 2) ExcelUtil 인스턴스 생성(시트인덱스 0부터 시작)
+ExcelUtil<TestVO> excelUtil = new ExcelUtil<>(excelFile, TestVO.class, 1);
 
 // 리스트로 변환
 List<TestVO> dataList = excelUtil.convertToList();
@@ -132,8 +138,11 @@ List<ExcelUtil<?>> excelList = new ArrayList<>();
 excelList.add(excelFile1);
 excelList.add(excelFile2);
 
+// ExcelUtil로 리스트 추가
+ExcelUtil<TestDto> excelFile3 = new ExcelUtil(excelList);
+
 // 엑셀 파일 생성 및 다운로드
-excelUtil.write("파일경로/파일명.xlsx");
+excelFile3.write("파일경로/파일명.xlsx");
 ```
 
 위의 예제 코드는 ExcelUtil 라이브러리의 주요 기능을 설명하기 위한 것입니다.
