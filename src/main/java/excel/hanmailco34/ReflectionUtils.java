@@ -13,8 +13,16 @@ public class ReflectionUtils {
 		
 	}
 	
-	public static Field getField(Class<?> type, String name) throws NoSuchFieldException {
-		return type.getDeclaredField(name);
+	public static Field getField(Class<?> type, String fieldName) {
+		try {
+			return type.getDeclaredField(fieldName);
+		} catch (NoSuchFieldException | SecurityException e) {
+			Class<?> superClass = type.getSuperclass();
+			if (superClass != null) {
+	            return getField(superClass, fieldName);
+	        }
+	        return null;
+		}
 	}
 
 	public static List<Field> getAllFields(Class<?> type) {
@@ -28,22 +36,17 @@ public class ReflectionUtils {
 		try {
 			instance = type.getConstructor().newInstance();
 			for(Map.Entry<String, Object> entry : map.entrySet()) {
-				Field[] fields = type.getDeclaredFields();
-				
-				for(Field field : fields) {
-					field.setAccessible(true);
-					
-					String fieldName = field.getName();
-					
-					if(entry.getValue() == null) continue;
-					
-					boolean isSameType = entry.getValue().getClass().equals(field.getType());
-					boolean isSameName = entry.getKey().equals(fieldName);
-					
-					if(isSameType && isSameName) {
-						field.set(instance, map.get(fieldName));
-					}
-				}
+				String fieldName = entry.getKey();
+	            Object value = entry.getValue();
+	            
+	            if(value == null) continue;
+	            
+	            Field field = getField(type, fieldName);
+	            
+	            if(field != null && field.getType().equals(value.getClass())) {
+	                field.setAccessible(true);
+	                field.set(instance, value);
+	            }				
 			}
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {

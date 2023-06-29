@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -23,26 +22,42 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelUtil<T> {
 
-	private SpreadsheetVersion VERSION = SpreadsheetVersion.EXCEL2007;
 	private int ROW_INDEX = 0;
 	private int COLUMN_INDEX = 0;
+	private int SHEET_INDEX = 0;
+	private String SHEET_NAME = "";
 	
 	private SXSSFWorkbook wb;
 	private XSSFWorkbook xb;
 	private Sheet sheet;
 	private ExcelDto excelDto;
-	private Class<T> type;	
+	private Class<T> type;
 	
-	public ExcelUtil(List<T> data, Class<T> type) {
+	/**
+	 * 리스트 -> 엑셀로 변환할때 쓰는 생성자
+	 * @return
+	 */
+	public ExcelUtil(List<T> data, Class<T> type, String sheetName) {
+		if(sheetName == null || sheetName.trim().isEmpty())
+			this.SHEET_NAME = null;
+		else
+			this.SHEET_NAME = sheetName;
 		this.wb = new SXSSFWorkbook();
 		this.excelDto = ExcelDtoFactory.mappingExcelDto(type);
 		renderExcel(data);
 	}
 	
+	public ExcelUtil(List<T> data, Class<T> type) {
+		this(data, type, null);
+	}
+	
+	/**
+	 * 엑셀파일 -> 리스트로 변활할때 쓰는 생성자
+	 * @param file
+	 * @param type
+	 */
 	public ExcelUtil(File file, Class<T> type) {
-		FileInputStream fis;
-		try {
-			fis = new FileInputStream(file);
+		try(FileInputStream fis = new FileInputStream(file)) {
 			this.xb = new XSSFWorkbook(fis);
 			this.excelDto = ExcelDtoFactory.mappingExcelDto(type);
 			this.type = type;
@@ -51,8 +66,31 @@ public class ExcelUtil<T> {
 		}		
 	}
 	
+	public ExcelUtil(File file, Class<T> type, int sheetIndex) {
+		this(file, type);
+		this.SHEET_INDEX = sheetIndex;
+	}	
+	
+	/**
+	 * 하나의 엑셀 파일에 여러개의 시트
+	 * @param list
+	 */
+	public ExcelUtil(List<ExcelUtil> list) {
+		this.wb = new SXSSFWorkbook();
+		for(ExcelUtil item : list) {
+			Sheet sourceSheet = item.sheet;
+			setSheetName(item.SHEET_NAME);
+			copyRows(sourceSheet);
+		}
+	}
+	
+	private void setSheetName(String sheetName) {
+		this.sheet = sheetName == null ? wb.createSheet() : wb.createSheet(sheetName);
+	}
+	
 	private void renderExcel(List<T> data) {
-		sheet = wb.createSheet();
+		setSheetName(this.SHEET_NAME);
+		
 		renderHeaderExcel(sheet, ROW_INDEX++, COLUMN_INDEX);
 		
 		if (data.isEmpty()) {
@@ -133,15 +171,23 @@ public class ExcelUtil<T> {
 			int cellNo = entry.getKey();
 			String columnName = entry.getValue();
 			Cell cell = row.getCell(cellNo);
-			String value = "";
-			
+			Object value = "";
 			if(cell != null) {
 				switch(cell.getCellType()) {
+	                case FORMULA:
+	                    value = cell.getCellFormula();
+	                    break;
 	                case NUMERIC:
-	                    value = cell.getNumericCellValue() + "";
+	                    value = cell.getNumericCellValue();
 	                    break;
 	                case STRING:
-	                    value = cell.getStringCellValue() + "";
+	                    value = cell.getStringCellValue();
+	                    break;
+	                case BLANK:
+	                    value = cell.getBooleanCellValue() + "";
+	                    break;
+	                case ERROR:
+	                    value = cell.getErrorCellValue() + "";
 	                    break;
                 }
 			}
@@ -149,6 +195,34 @@ public class ExcelUtil<T> {
 		}
 		return ReflectionUtils.mapToClass(rowData, type);
 	}
+	
+	private void copyRows(Sheet sourceSheet) {
+        for (Row sourceRow : sourceSheet) {
+            Row targetRow = this.sheet.createRow(sourceRow.getRowNum());
+
+            for (Cell cell : sourceRow) {
+                Cell targetCell = targetRow.createCell(cell.getColumnIndex(), cell.getCellType());
+                targetCell.setCellStyle(cell.getCellStyle());
+
+                switch (cell.getCellType()) {
+	                case FORMULA:
+	                	targetCell.setCellFormula(cell.getCellFormula());
+	                    break;
+	                case NUMERIC:
+	                	targetCell.setCellValue(cell.getNumericCellValue());
+	                    break;
+	                case STRING:
+	                	targetCell.setCellValue(cell.getStringCellValue());
+	                    break;
+	                case BLANK:
+	                    break;
+	                case ERROR:
+	                	targetCell.setCellErrorValue(cell.getErrorCellValue());
+	                    break;
+                }
+            }
+        }
+    }
 	
 	public void write(OutputStream stream) throws IOException {
 		wb.write(stream);
@@ -165,7 +239,7 @@ public class ExcelUtil<T> {
 	}
 	
 	public List<T> convertToList() {
-		this.sheet = xb.getSheetAt(0);
+		this.sheet = xb.getSheetAt(this.SHEET_INDEX);
 		int rowNo = 0;
         int rows = sheet.getPhysicalNumberOfRows();
         
