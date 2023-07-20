@@ -120,9 +120,7 @@ data1.setName("홍길동");
 dataList1.add(data1);
 TestVO1 data2 = new TestVO1();
 data2.setName("이순신");
-dataList1
-
-.add(data2);
+dataList1.add(data2);
 
 // 자료 리스트2 생성
 List<TestVO2> dataList2 = new ArrayList<>();
@@ -143,7 +141,7 @@ excelList.add(excelFile1);
 excelList.add(excelFile2);
 
 // ExcelUtil로 리스트 추가
-ExcelUtil<TestDto> excelFile3 = new ExcelUtil(excelList);
+ExcelUtil<?> excelFile3 = new ExcelUtil(excelList);
 
 // 엑셀 파일 생성 및 다운로드
 excelFile3.write("파일경로/파일명.xlsx");
@@ -151,6 +149,33 @@ excelFile3.write("파일경로/파일명.xlsx");
 // 스트림으로 엑셀 파일 보내줄 경우
 // response는 HttpServletResponse 객체입니다.
 excelFile.write(response.getOutputStream());
+```
+
+### 4.프론트엔드에서 Axios를 사용하여 엑셀 파일 다운로드하기
+프론트엔드에서 엑셀 파일을 다운로드하는 경우 Axios를 사용하여 HTTP POST 요청을 보내고, 그에 대한 응답으로 받은 데이터를 Blob 형태로 변환하여 파일을 다운로드할 수 있습니다.
+
+```javascript
+// 엑셀 파일을 다운로드하는 함수
+function downloadExcelFile() {
+    const param = { /* 요청에 필요한 파라미터를 설정 */ };
+
+    // Axios를 사용하여 서버에 POST 요청 보내기
+    axios.post("/ems/excelDownload", param, { responseType: 'arraybuffer' })
+        .then(response => {
+            // 응답 데이터를 Blob 형태로 변환
+            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+            // Blob을 파일로 다운로드
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.target = '_self';
+            link.download = '엑셀다운로드.xlsx';
+            link.click();
+        })
+        .catch(error => {
+            console.error("엑셀 파일 다운로드 실패:", error);
+        });
+}
 ```
 
 위의 예제 코드는 ExcelUtil 라이브러리의 주요 기능을 설명하기 위한 것입니다.
