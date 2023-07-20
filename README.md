@@ -14,7 +14,7 @@ allprojects {
 }
 
 dependencies {
-    implementation 'com.github.hanmailco34:excelUtil:0.0.5'
+    implementation 'com.github.hanmailco34:excelUtil:0.0.6'
 }
 ```
 
@@ -32,7 +32,7 @@ dependencies {
     <dependency>
         <groupId>com.github.hanmailco34</groupId>
         <artifactId>excelUtil</artifactId>
-        <version>0.0.5</version>
+        <version>0.0.6</version>
     </dependency>
 </dependencies>
 ```
