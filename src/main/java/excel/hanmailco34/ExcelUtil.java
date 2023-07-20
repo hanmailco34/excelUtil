@@ -42,7 +42,7 @@ public class ExcelUtil<T> {
 			this.SHEET_NAME = null;
 		else
 			this.SHEET_NAME = sheetName;
-		this.wb = new SXSSFWorkbook();
+		this.wb = new SXSSFWorkbook(data.size()+1);
 		this.excelDto = ExcelDtoFactory.mappingExcelDto(type);
 		renderExcel(data);
 	}
@@ -75,9 +75,9 @@ public class ExcelUtil<T> {
 	 * 하나의 엑셀 파일에 여러개의 시트
 	 * @param list
 	 */
-	public ExcelUtil(List<ExcelUtil> list) {
+	public ExcelUtil(List<ExcelUtil<?>> list) {
 		this.wb = new SXSSFWorkbook();
-		for(ExcelUtil item : list) {
+		for(ExcelUtil<?> item : list) {
 			Sheet sourceSheet = item.sheet;
 			setSheetName(item.SHEET_NAME);
 			copyRows(sourceSheet);
