@@ -46,7 +46,13 @@ public class ReflectionUtils {
 	            if(field != null && field.getType().equals(value.getClass())) {
 	                field.setAccessible(true);
 	                field.set(instance, value);
-	            }				
+	            }else if(field != null && field.getType().equals(String.class) && value instanceof Number){ // 명시적 타입 컨버팅 (Number -> String)
+					if(value.getClass().equals(Double.class) && ((Double) value).doubleValue() == ((Double) value).intValue()){
+						value =  Integer.valueOf(((Double) value).intValue());
+					}
+					field.setAccessible(true);
+					field.set(instance, value+"");
+				}
 			}
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {

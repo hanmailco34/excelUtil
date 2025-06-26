@@ -183,12 +183,14 @@ public class ExcelUtil<T> {
 	                case STRING:
 	                    value = cell.getStringCellValue();
 	                    break;
-	                case BLANK:
-	                    value = cell.getBooleanCellValue() + "";
-	                    break;
+					case BOOLEAN:
+						value = cell.getBooleanCellValue() + "";
+						break;
 	                case ERROR:
 	                    value = cell.getErrorCellValue() + "";
 	                    break;
+					case BLANK:
+						break;
                 }
 			}
 			rowData.put(columnName, value);
